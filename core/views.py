@@ -71,11 +71,23 @@ def generate_code():
 
 class RegisterAPIView(APIView):
     @swagger_auto_schema(
+        operation_description="Telefon raqamni ro'yxatdan o'tkazish va telegram deep link olish",
         request_body=RegisterSerializer,
-        responses={201: openapi.Response("Deep link created", schema=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={"deep_link": openapi.Schema(type=openapi.TYPE_STRING, description="Telegram deep link")}
-        ))}
+        responses={
+            201: openapi.Response(
+                description="Deep link created",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "deep_link": openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Telegram deep link orqali tasdiqlash"
+                        )
+                    }
+                )
+            ),
+            400: "Bad Request"
+        }
     )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -96,6 +108,24 @@ class RegisterAPIView(APIView):
 
 
 class LoginAPIView(APIView):
+    @swagger_auto_schema(
+        operation_description="SMS code orqali login qilish va JWT token olish",
+        request_body=LoginSerializer,
+        responses={
+            200: openapi.Response(
+                description="Login muvaffaqiyatli",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "refresh": openapi.Schema(type=openapi.TYPE_STRING, description="Refresh token"),
+                        "access": openapi.Schema(type=openapi.TYPE_STRING, description="Access token"),
+                        "user_id": openapi.Schema(type=openapi.TYPE_INTEGER, description="User ID"),
+                    }
+                )
+            ),
+            400: "Invalid or expired code"
+        }
+    )
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
