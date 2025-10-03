@@ -25,7 +25,10 @@ SECRET_KEY = 'django-insecure-)&5od#ubyx-b&7*o-6!$*mf_5mb6(z96ioreqzpkrr2deng4lk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "scommerce.sifatdev.uz",
+    "127.0.0.1"
+]
 
 
 # Application definition
