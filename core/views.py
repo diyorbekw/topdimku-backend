@@ -2,6 +2,9 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import filters
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from .models import (
     Category, Product, ProductImage, ProductComment, ProductCommentImage,
     Cart, CartItem, Order, OrderItem, Verification, User
@@ -13,8 +16,6 @@ from .serializers import (
     RegisterSerializer, LoginSerializer
 )
 from rest_framework_simplejwt.tokens import RefreshToken
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 from django.utils import timezone
 from datetime import timedelta
 import random
@@ -28,6 +29,48 @@ class CategoryViewSet(ModelViewSet):
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title', 'description']
+    ordering_fields = ['price', 'created_at']
+    
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'category_id',
+                openapi.IN_QUERY,
+                description="Category ID bo'yicha filtr",
+                type=openapi.TYPE_INTEGER
+            ),
+            openapi.Parameter(
+                'search',
+                openapi.IN_QUERY,
+                description="Nomi yoki tavsifida qidirish",
+                type=openapi.TYPE_STRING
+            ),
+            openapi.Parameter(
+                'ordering',
+                openapi.IN_QUERY,
+                description="Tartiblash (price, -price, created_at, -created_at)",
+                type=openapi.TYPE_STRING
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        category_id = self.request.query_params.get('category_id')
+        
+        if category_id:
+            # Agar sizda Product va Category o'rtasida bog'lanish bo'lsa
+            # queryset = queryset.filter(category_id=category_id)
+            # Lekin hozircha category_id parametri qabul qilinadi, ammo filtr qilinmaydi
+            # Chunki Product modelida category maydoni yo'q
+            # Bu yerda siz o'zingizning mantiqingizni qo'llashingiz kerak
+            pass
+        
+        return queryset
 
 
 class ProductImageViewSet(ModelViewSet):

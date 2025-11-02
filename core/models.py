@@ -244,3 +244,13 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.title} (Order {self.order.id})"
+
+class SliderImage(models.Model):
+    image = models.ImageField(upload_to="sliders/", verbose_name="Slider Image")
+    
+    def __str__(self):
+        return f"Slider Image {self.id}"
+    
+    class Meta:
+        verbose_name = "Slider Image"
+        verbose_name_plural = "Slider Images"
